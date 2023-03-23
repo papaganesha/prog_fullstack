@@ -1,0 +1,5 @@
+Atividade 1 - API RESTfull para realizar CRUD de Clientes
+Nessa atividade, a proposta é realizarmos uma API que realize um CRUD de Clientes, trabalhando com os dados 
+sem persistência (utilizando arrays). Em cada cliente, anota-se um id, cpf, nome e telefone. 
+Essa API deve ser construída utilizando Node.js e o Framework Express.js. 
+Caso não tenha trabalhado ainda com essas tecnologias, um direcionamento na aula será dado em aula.
