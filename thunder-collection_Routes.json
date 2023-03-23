@@ -1,0 +1,117 @@
+{
+    "client": "Thunder Client",
+    "collectionName": "Routes",
+    "dateExported": "2023-03-23T00:51:59.748Z",
+    "version": "1.1",
+    "folders": [],
+    "requests": [
+        {
+            "_id": "ed1a01e8-38d9-47ba-bbda-661aa671502a",
+            "colId": "d455862a-33d7-4336-a454-ee5562239180",
+            "containerId": "",
+            "name": "Test",
+            "url": "http://localhost:3000",
+            "method": "GET",
+            "sortNum": 10000,
+            "created": "2023-03-22T23:09:45.780Z",
+            "modified": "2023-03-22T23:09:45.780Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "2f94067b-7720-4a85-b7a4-abafa3372acd",
+            "colId": "d455862a-33d7-4336-a454-ee5562239180",
+            "containerId": "",
+            "name": "Get Clients",
+            "url": "http://localhost:3000/client",
+            "method": "GET",
+            "sortNum": 15000,
+            "created": "2023-03-22T23:13:16.258Z",
+            "modified": "2023-03-22T23:20:48.215Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "f565dea0-751d-44ba-ae94-ec04def3adb4",
+            "colId": "d455862a-33d7-4336-a454-ee5562239180",
+            "containerId": "",
+            "name": "Get Client by ID",
+            "url": "http://localhost:3000/client/1",
+            "method": "GET",
+            "sortNum": 17500,
+            "created": "2023-03-22T23:18:46.036Z",
+            "modified": "2023-03-23T00:06:22.296Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "06c8265e-9c12-4513-9546-54ca1258b7f0",
+            "colId": "d455862a-33d7-4336-a454-ee5562239180",
+            "containerId": "",
+            "name": "Create new Client",
+            "url": "http://localhost:3000/client",
+            "method": "POST",
+            "sortNum": 20000,
+            "created": "2023-03-22T23:09:53.521Z",
+            "modified": "2023-03-22T23:50:23.151Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n    \"id\": \"001\",\n    \"cpf\": \"06637786066\",\n    \"nome\":\"Jorge Alves\",\n    \"telefone\": \"5199761275\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "4b6e4632-e2cd-4cd1-947e-79ed802a3400",
+            "colId": "d455862a-33d7-4336-a454-ee5562239180",
+            "containerId": "",
+            "name": "Inactivate Client",
+            "url": "http://localhost:3000/inactivate/1",
+            "method": "PUT",
+            "sortNum": 30000,
+            "created": "2023-03-22T23:52:39.848Z",
+            "modified": "2023-03-23T00:11:49.425Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "654f4936-e6d1-41cd-a8a3-ed6f2cd2b57d",
+            "colId": "d455862a-33d7-4336-a454-ee5562239180",
+            "containerId": "",
+            "name": "Activate Client",
+            "url": "http://localhost:3000/activate/1",
+            "method": "PUT",
+            "sortNum": 35000,
+            "created": "2023-03-23T00:11:16.855Z",
+            "modified": "2023-03-23T00:11:44.467Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "bb8aaefb-5f96-4b7a-a181-51a608dae3cd",
+            "colId": "d455862a-33d7-4336-a454-ee5562239180",
+            "containerId": "",
+            "name": "Update Client",
+            "url": "http://localhost:3000/client/1",
+            "method": "PUT",
+            "sortNum": 40000,
+            "created": "2023-03-23T00:05:30.341Z",
+            "modified": "2023-03-23T00:48:05.821Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"nome\": \"Pablo Antunes\",\n  \"telefone\": \"51998195334\"\n}",
+                "form": []
+            },
+            "tests": []
+        }
+    ]
+}
