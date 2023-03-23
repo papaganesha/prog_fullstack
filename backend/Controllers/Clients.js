@@ -7,10 +7,13 @@ var Controller = {}
 
 var clients = require('../Mockup/Clients')
 
+
+//GET ALL THE CLIENTS
 Controller.getClients = async (req, res) => {
     res.status(200).json(clients)
 }
 
+//GET CLIENT BY ID
 Controller.getClientById = async (req, res) => {
     var { id } = req.params
     var client
@@ -27,6 +30,7 @@ Controller.getClientById = async (req, res) => {
 }
 
 
+// CREATE NEW CLIENT
 Controller.addClient = async (req, res) => {
     const { cpf, nome, telefone } = req.body
     var checkIfExists = false
@@ -61,39 +65,47 @@ Controller.addClient = async (req, res) => {
     }
 }
 
+//UPDATE CLIENT INFO
 Controller.updateClient = async (req, res) => {
     var { id } = req.params
     var { cpf, nome, telefone } = req.body
-    var index
-    for (var i = 0; i < clients.length; i++) {
-        if (id == clients[i].id) {
-            index = i
+    if (cpf || nome || telefone) {
+        var index
+        for (var i in clients) {
+            if (id == clients[i].id) {
+                index = i
+            }
         }
-    }
-    if (index == -1) {
-        res.status(400).json({ msg: `Cliente inexistente` })
+        if (index == -1) {
+            res.status(400).json({ msg: `Cliente inexistente` })
+
+        } else {
+            try {
+                if (cpf) {
+                    clients[index].cpf = cpf
+                }
+                if (nome) {
+                    clients[index].nome = nome
+                }
+                if (telefone) {
+                    clients[index].telefone = telefone
+                }
+            } catch (error) {
+                res.status(400).json({ msg: `Erro alterar cliente : ${error.message}` })
+
+            }
+            res.status(201).json({ msg: `Cliente alterado com sucesso` })
+
+        }
 
     } else {
-        try {
-            if (cpf) {
-                clients[index].cpf = cpf
-            }
-            if (nome) {
-                clients[index].nome = nome
-            }
-            if (telefone) {
-                clients[index].telefone = telefone
-            }
-        } catch (error) {
-            res.status(400).json({ msg: `Erro alterar cliente : ${error.message}` })
-
-        }
-        res.status(201).json({ msg: `Cliente alterado com sucesso` })
+        res.status(400).json({ msg: `No minimo uma informação deve ser escolhida para alteramento` })
 
     }
-
 }
 
+
+//INACTIVATE CLIENT
 Controller.inactivateClient = async (req, res) => {
     var { id } = req.params
     var index
@@ -106,22 +118,23 @@ Controller.inactivateClient = async (req, res) => {
         res.status(400).json({ msg: `Cliente inexistente` })
 
     } else {
-        if(clients[index].ativo == true){
+        if (clients[index].ativo == true) {
             try {
                 clients[index].ativo = false
             } catch (error) {
                 res.status(400).json({ msg: `Erro inativar cliente : ${error.message}` })
-    
+
             }
             res.status(201).json({ msg: `Cliente inativado com sucesso` })
-    
-        }else{
+
+        } else {
             res.status(201).json({ msg: `Cliente ja esta inativado` })
         }
-    
-        }
+
+    }
 }
 
+//ACTIVATE CLIENT
 Controller.activateClient = async (req, res) => {
     var { id } = req.params
     var index
@@ -134,20 +147,20 @@ Controller.activateClient = async (req, res) => {
         res.status(400).json({ msg: `Cliente inexistente` })
 
     } else {
-        if(clients[index].ativo == false){
+        if (clients[index].ativo == false) {
             try {
                 clients[index].ativo = true
             } catch (error) {
                 res.status(400).json({ msg: `Erro inativar cliente : ${error.message}` })
-    
+
             }
             res.status(201).json({ msg: `Cliente ativado com sucesso` })
-    
-        }else{
+
+        } else {
             res.status(201).json({ msg: `Cliente ja esta ativado` })
         }
-    
-        }
+
+    }
 }
 
 module.exports = Controller;
