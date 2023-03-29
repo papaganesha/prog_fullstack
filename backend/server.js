@@ -1,4 +1,4 @@
-const app = require('./app')
+const app = require('./App')
 //const mongoose = require('mongoose')
 
 console.log('\n============================ Prog Fullstack ============================')

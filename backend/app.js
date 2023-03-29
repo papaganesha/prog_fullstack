@@ -19,7 +19,7 @@ class AppController {
         this.app.options('*', cors())
     }
     routes() {
-        this.app.use(require('./routes/Routes'))
+        this.app.use(require('./Routes/Routes'))
     }
 }
 

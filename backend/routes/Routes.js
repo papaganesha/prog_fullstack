@@ -6,7 +6,10 @@ const {
     getClientById,
     updateClient,
     inactivateClient,
-    activateClient
+    activateClient,
+    checkBalance,
+    addBalance,
+    withdrawBalance
 } = require('../Controllers/Clients')
 
 
@@ -15,16 +18,23 @@ router.get("/", (req, res)=>{
 })
 
 
-router.get("/client", getClients)
+router.get("/api/clients", getClients)
 
-router.get("/client/:id", getClientById)
+router.get("/api/clients/:id", getClientById)
 
-router.post("/client", addClient)
+router.get("/api/balance/:id", checkBalance)
 
-router.put("/client/:id", updateClient)
+router.post("/api/clients", addClient)
 
-router.put("/activate/:id", activateClient)
+router.post("/api/balance/:id", addBalance)
 
-router.put("/inactivate/:id", inactivateClient)
+router.post("/api/withdraw/:id", withdrawBalance)
+
+router.put("/api/clients/:id", updateClient)
+
+router.put("/api/activate/:id", activateClient)
+
+router.put("/api/inactivate/:id", inactivateClient)
+
 
 module.exports = router
