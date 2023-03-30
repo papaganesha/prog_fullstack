@@ -1,7 +1,7 @@
 {
     "client": "Thunder Client",
     "collectionName": "Routes",
-    "dateExported": "2023-03-29T23:27:22.677Z",
+    "dateExported": "2023-03-30T00:41:49.568Z",
     "version": "1.1",
     "folders": [],
     "requests": [
@@ -56,7 +56,7 @@
             "method": "GET",
             "sortNum": 18437.5,
             "created": "2023-03-29T22:23:06.317Z",
-            "modified": "2023-03-29T23:11:30.521Z",
+            "modified": "2023-03-30T00:35:04.005Z",
             "headers": [],
             "params": [],
             "tests": []
@@ -85,16 +85,16 @@
             "colId": "0da347ef-c09f-48c7-952e-76ca7217dc44",
             "containerId": "",
             "name": "Add balance to Client account by ID",
-            "url": "http://localhost:3000/api/balance/100",
+            "url": "http://localhost:3000/api/balance/1",
             "method": "POST",
             "sortNum": 25000,
             "created": "2023-03-29T22:35:24.094Z",
-            "modified": "2023-03-29T23:22:52.528Z",
+            "modified": "2023-03-30T00:34:41.465Z",
             "headers": [],
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n  \"moeda\": \"usd\",\n  \"saldo\": 1200.45\n}",
+                "raw": "{\n  \"moeda\": \"usd\",\n  \"saldo\": 200\n}",
                 "form": []
             },
             "tests": []
@@ -104,11 +104,11 @@
             "colId": "0da347ef-c09f-48c7-952e-76ca7217dc44",
             "containerId": "",
             "name": "Withdraw Client balance by ID",
-            "url": "http://localhost:3000/api/withdraw/1",
+            "url": "http://localhost:3000/api/withdraw/3",
             "method": "POST",
             "sortNum": 27500,
             "created": "2023-03-29T23:08:26.839Z",
-            "modified": "2023-03-29T23:11:18.318Z",
+            "modified": "2023-03-30T00:41:02.232Z",
             "headers": [],
             "params": [],
             "body": {

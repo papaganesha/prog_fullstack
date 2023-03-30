@@ -236,40 +236,47 @@ Controller.addBalance = async (req, res) => {
                 clientAccount = account
             }
         }
+        //Loop em balancos dentro da conta do cliente
         for (var balance of clientAccount.balances) {
+            //Caso moeda do balanco seja a mesma de escolha do cliente e exista saldo
             if (balance.moeda == moeda && balance.saldo) {
-                //Caso cliente tenha saldo na moeda
+                //Setar cliente como tendo saldo/balanco na moeda escolhida
                 checkIfHasBalance = true
             }
         }
 
         //Caso cliente possua saldo na moeda
         if (checkIfHasBalance) {
+            //Loop de balancos do conta do cliente
             for (var balance of clientAccount.balances) {
+                //Caso moeda atual do balanco seja a mesma escolhida para deposito
                 if (balance.moeda == moeda) {
+                    //Adicionando valor ao saldo/balanco
                     balance.saldo += saldo
                 }
             }
+            //Mostrar saldos/balancos apos inserção de saldo
             res.status(200).json({ saldo: clientAccount.balances })
             
         } 
         //Caso cliente não possua saldo na moeda
         else {
-            //Criar novo objeto de balanco/saldo
+            //Criar novo objeto de saldo/balanco
             try {
-                //Inserindo objeto de balanco/saldo nos balancos da conta do cliente
+                //Inserindo objeto de saldo/balanco nos balancos da conta do cliente
                 clientAccount.balances.push({
                     moeda,
                     saldo
                 })
             
             } 
-            //Caso ocorrer erro durante a inserção do novo objeto de balano/saldo
+            //Caso ocorrer erro durante a inserção do novo objeto de saldo/balanco
             catch (err) {
-                console.log(err.message)
                 res.status(401).json({ msg: "Erro ao adicionar saldo" })
 
             }
+
+            //Caso tentativa de Insercao do novo objeto de saldo/balanco tenha procedido sem erros
             res.status(200).json({ saldo: clientAccount.balances })
         }
     }
@@ -278,19 +285,22 @@ Controller.addBalance = async (req, res) => {
 //Retirar do saldo do Cliente por ID
 //Checar se cliente existe por ID
 //Verificar se cliente possui saldo na Moeda escolhida
-//Diminuir saldo, com limite de 0
+//Checar se valor de retirada nao ira estourar o saldo
+//Diminuir o saldo
 Controller.withdrawBalance = async (req, res) => {
     var { id } = req.params
     var { saldo, moeda } = req.body
     var checkIfExists = false
     var checkIfHasBalance = false
     var clientAccount
-    console.log(saldo, moeda)
+    var exceptedWithdrawValue = false
 
-    //Achando cliente no Array
+    //Achando cliente no array
+    //Loop de clientes do array de clientes
     for (var client of clients) {
+        //Caso cliente do loop possuir mesmo ID da requisicao
         if (id == client.id) {
-            //Caso cliente exista
+            //Setando cliente como existente
             checkIfExists = true
         }
     }
@@ -299,41 +309,61 @@ Controller.withdrawBalance = async (req, res) => {
     if (!checkIfExists) {
         //Caso cliente não exista
         res.status(400).json({ msg: `Cliente inexistente` })
-        //Caso cliente exista
-    } else {
-        //Checar se cliente tem saldo na moeda escolhida
-        //Caso cliente ter saldo, verificar se retirada não vai estourar o saldo
-        //Caso retirada não estourar saldo, prosseguir com retirada
+        
+    } 
+    //Caso cliente exista
+    else {
+        //Achar conta do cliente
+        //Loop de contas de array de Contas de Clientes
         for (var account of accounts) {
+            //Caso id de cliente da conta seja o mesmo ID da requisicao
             if (account.id == id) {
+                //Setando conta do cliente
                 clientAccount = account
-                console.log(account.id)
-                if (account.balances.length > 0) {
-                    checkIfHasBalance = true
-                }
             }
         }
-        if (checkIfHasBalance) {
-            for (var balance of clientAccount.balances) {
-                console.log(balance)
-                if (balance.moeda == moeda) {
-                    balance.saldo -= saldo
-                }
+        //Verificar balancos na conta do cliente
+        //Looping de balancos na conta do cliente
+        for(var balance of clientAccount.balances){
+            //Caso cliente possua saldo na moeda escolhida
+            if(balance.moeda == moeda){
+                //Setando que cliente possui balanco na moeda escolhida
+                checkIfHasBalance = true
             }
-            res.status(200).json({ saldo: clientAccount.balances })
-        } else {
-            try {
-                clientAccount.balances.push({
-                    moeda,
-                    saldo
-                })
-            } catch (err) {
-                console.log(err.message)
-                res.status(401).json({ msg: "Erro ao adicionar saldo" })
+        }
 
+        //Caso cliente possua saldo/balanco na moeda escolhida
+        if (checkIfHasBalance) {
+            //Loop dos balancos dentro da conta do cliente
+            for (var balance of clientAccount.balances) {
+                //Achando balanco da moeda escolhida
+                if (balance.moeda == moeda) {
+                    //Checar se retirada não sera maior que o saldo
+                    if(balance.saldo >= saldo){
+                        //Caso retirada for menor que o saldo
+                        //Retirando valor do saldo
+                        balance.saldo -= saldo
+                    
+                    }else{
+                        //Caso retirada estourar o saldo
+                        exceptedWithdrawValue = true
+                    }
+                }
             }
-            res.status(200).json({ saldo: clientAccount.balances })
+            //Caso valor de retirada estoure o saldo
+            if(exceptedWithdrawValue){
+                res.status(200).json({ msg: "Não é possivel retirar este valor, saldo insuficiente" })
+            }else{
+                //Caso retirada tenha ocorrido sem problemas
+                res.status(200).json({ saldo: clientAccount.balances })
+            }
+            
+        } 
+        //Caso cliente não possua saldo/balanco na moeda escolhida
+        else {
+            res.status(400).json({ msg: `Cliente não possui saldo nesta moeda` })
         }
+       
     }
 }
 
