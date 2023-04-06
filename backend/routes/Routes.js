@@ -1,5 +1,17 @@
 
 const router = require('express').Router();
+// const {
+//     addClient, 
+//     getClients,
+//     getClientById,
+//     updateClient,
+//     inactivateClient,
+//     activateClient,
+//     checkBalance,
+//     addBalance,
+//     withdrawBalance
+// } = require('../Controllers/Clients')
+
 const {
     addClient, 
     getClients,
@@ -10,8 +22,7 @@ const {
     checkBalance,
     addBalance,
     withdrawBalance
-} = require('../Controllers/Clients')
-
+} = require('../Controllers/Clients_db')
 
 router.get("/", (req, res)=>{
     res.send("hello")

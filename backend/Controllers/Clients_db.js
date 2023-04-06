@@ -3,6 +3,7 @@
 //Cadastrar, criar novo Cliente.✔️
 //Variaveis do Cliente: id, cpf, nome, telefone, ativo(excluido ou nao).✔️
 //Dados de clientes mocados.✔️
+var { connection } = require('../Database/Connect')
 
 var Controller = {}
 
@@ -12,30 +13,66 @@ var accounts = require('../Mockup/Accounts')
 
 //GET ALL THE CLIENTS
 Controller.getClients = async (req, res) => {
-    res.status(200).json(clients)
+    var clients = []
+    connection.query(`SELECT * FROM CLIENTES`, function (error, results, fields) {
+        if (error) {
+            //throw error
+            console.log(`Error code: ${error.code} -Error nbr: ${error.errno} - Error message: ${error.sqlMessage}`)
+        };
+        // results.map((client)=>{
+
+        // })
+        for (let client of results) {
+            var clientObj = {
+                id: client.id_cliente,
+                cpf: client.cpf,
+                nome: client.nome,
+                telefone: client.telefone
+            }
+            try {
+                clients.push(clientObj)
+            }
+            catch (error) {
+                console.log(error)
+            }
+            console.log(clientObj)
+        }
+        console.log("CLIENTES: ", clients)
+        res.status(200).json({ clients })
+    });
+
 }
 
 //GET CLIENT BY ID
 Controller.getClientById = async (req, res) => {
     var { id } = req.params
     //Define variavel para instanciar cliente
-    var client
-    //Loop no array dos clientes
-    for (let i of clients) {
-        //Caso ID requerido seja igual o do cliente atual do looping
-        if (i.id == id) {
-            //Associando cliente encontrado a variavel
-            client = i
+
+    connection.query(`SELECT * FROM CLIENTES WHERE ID_CLIENTE = ?`, id, function (error, results, fields) {
+        if (error) {
+            console.log(`Error code: ${error.code} -Error nbr: ${error.errno} - Error message: ${error.sqlMessage}`)
+            res.status(500).json({ "msg": "Erro durante busca de cliente por ID" })
+        };
+        //Verifica se resultado nao esta nulo
+        if (results[0]) {
+            //Criar objeto cliente
+            var client = {
+                id: results[0].id_cliente,
+                cpf: results[0].cpf,
+                nome: results[0].nome,
+                telefone: results[0].telefone
+            }
         }
-    }
-    //Se existir cliente, retorna-lo 
-    if (client) {
-        res.status(200).json({ client })
-    } 
-    //Caso não exista cliente, retornar mensagem
-    else {
-        res.status(400).json({ msg: "Cliente não cadastrado" })
-    }
+        //Se existir cliente, retorna-lo 
+        if (client) {
+            res.status(200).json({ client })
+        }
+        //Caso não exista cliente, retornar mensagem
+        else {
+            res.status(400).json({ msg: "Cliente não cadastrado" })
+        }
+    });
+
 }
 
 
@@ -49,51 +86,31 @@ Controller.addClient = async (req, res) => {
     var checkIfExists = false
     //Checa se todos os parametros de cadastro estão presentes
     if (cpf, nome, telefone) {
-        //Loop no array de clientes
-        for (let client of clients) {
-            //Verifica se cpf do cliente é igual ao cpf do cliente atual do looping
-            if (client.cpf == cpf) {
-                //Seta usuario como existente
+        //Checar se cliente existe de acordo com o CPF
+        //PROCEDURE AQUI
+        connection.query(`SELECT * FROM CLIENTES WHERE CPF = ?`, cpf, function (error, results, fields) {
+            if (error) {
+                console.log(`Error code: ${error.code} -Error nbr: ${error.errno} - Error message: ${error.sqlMessage}`)
+                //res.status(500).json({"msg": "Erro durante busca de cliente por ID"})
+            }
+            if (results[0].cpf == cpf) {
+                console.log("USUARIO EXISTE")
                 checkIfExists = true
             }
-        }
+        })
+
         //Caso usuario existir
         if (checkIfExists) {
             res.status(400).json({ msg: `Cliente com este cpf ja foi cadastrado` })
-        } 
+        }
         //Caso usuario não existir
         else {
-            //Criando novo objeto Cliente
-            var client = {
-                id: String(Number(clients[clients.length - 1].id) + 1),
-                cpf,
-                nome,
-                telefone,
-                ativo: true
-            }
-            //Criando novo objeto Conta de Cliente
-            var account = {
-                id: id,
-                balances: [
+            console.log("Usuario nao existe, inserir")
+            res.status(400).json({ msg: `Usuario nao existe, inserir` })
 
-                ]
-            }
-            //Fazendo inserção
-            try {
-                clients.push(client)
-                accounts.push(account)
-                res.status(201).json({ msg: "Cliente cadastrado" })
-            }
-            //Captura de erro durante inserção de novo cliente e conta
-            catch (error) {
-                res.status(400).json({ msg: `Erro cadastro cliente : ${error.message}` })
-            }
-
-            //Caso cliente seja inserido
-            console.log(clients[clients.length - 1])
         }
 
-    } 
+    }
     //Caso faltem parametros de cadastro
     else {
         res.status(400).json({ msg: `Faltam informações para o cadastro de cliente` })
@@ -101,6 +118,10 @@ Controller.addClient = async (req, res) => {
 }
 
 //UPDATE CLIENT INFO
+//Atualizar informações de cliente
+//Checar se cliente existe
+//Verificar quais informações/parametros foram passadas
+//Alterar informações de acordo com os parametros do requerimento
 Controller.updateClient = async (req, res) => {
     var { id } = req.params
     var { cpf, nome, telefone } = req.body
@@ -283,8 +304,8 @@ Controller.addBalance = async (req, res) => {
             }
             //Mostrar saldos/balancos apos inserção de saldo
             res.status(200).json({ saldos: clientAccount.balances })
-            
-        } 
+
+        }
         //Caso cliente não possua saldo na moeda
         else {
             //Criar novo objeto de saldo/balanco
@@ -294,8 +315,8 @@ Controller.addBalance = async (req, res) => {
                     moeda,
                     saldo
                 })
-            
-            } 
+
+            }
             //Caso ocorrer erro durante a inserção do novo objeto de saldo/balanco
             catch (err) {
                 res.status(401).json({ msg: "Erro ao adicionar saldo" })
@@ -335,8 +356,8 @@ Controller.withdrawBalance = async (req, res) => {
     if (!checkIfExists) {
         //Caso cliente não exista
         res.status(400).json({ msg: `Cliente inexistente` })
-        
-    } 
+
+    }
     //Caso cliente exista
     else {
         //Achar conta do cliente
@@ -350,9 +371,9 @@ Controller.withdrawBalance = async (req, res) => {
         }
         //Verificar balancos na conta do cliente
         //Looping de balancos na conta do cliente
-        for(var balance of clientAccount.balances){
+        for (var balance of clientAccount.balances) {
             //Caso cliente possua saldo na moeda escolhida
-            if(balance.moeda == moeda){
+            if (balance.moeda == moeda) {
                 //Setando que cliente possui balanco na moeda escolhida
                 checkIfHasBalance = true
             }
@@ -365,31 +386,31 @@ Controller.withdrawBalance = async (req, res) => {
                 //Achando balanco da moeda escolhida
                 if (balance.moeda == moeda) {
                     //Checar se retirada não sera maior que o saldo
-                    if(balance.saldo >= saldo){
+                    if (balance.saldo >= saldo) {
                         //Caso retirada for menor que o saldo
                         //Retirando valor do saldo
                         balance.saldo -= saldo
-                    
-                    }else{
+
+                    } else {
                         //Caso retirada estourar o saldo
                         exceptedWithdrawValue = true
                     }
                 }
             }
             //Caso valor de retirada estoure o saldo
-            if(exceptedWithdrawValue){
+            if (exceptedWithdrawValue) {
                 res.status(200).json({ msg: "Não é possivel retirar este valor, saldo insuficiente" })
-            }else{
+            } else {
                 //Caso retirada tenha ocorrido sem problemas
                 res.status(200).json({ saldos: clientAccount.balances })
             }
-            
-        } 
+
+        }
         //Caso cliente não possua saldo/balanco na moeda escolhida
         else {
             res.status(400).json({ msg: `Cliente não possui saldo nesta moeda` })
         }
-       
+
     }
 }
 

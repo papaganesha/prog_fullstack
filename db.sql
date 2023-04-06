@@ -1,0 +1,1 @@
+CREATE TABLE `bancodigital`.`conta` (`id_cliente` INT NOT NULL , `moeda` VARCHAR(50) NOT NULL , `saldo` FLOAT(50) NOT NULL , `data_alteracao` DATE NOT NULL DEFAULT CURRENT_TIMESTAMP ) ENGINE = InnoDB;
