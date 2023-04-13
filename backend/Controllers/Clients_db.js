@@ -309,7 +309,7 @@ Controller.addBalance = async (req, res) => {
                         if (balance.moeda == moeda) {
                             //Adicionando valor ao saldo/balanco
                             var newSaldo = balance.saldo + saldo
-                            var sql = `UPDATE CONTAS SET SALDO = ? WHERE CONTAS.MOEDA = 'USD' AND CONTAS.ID_CLIENTE = ?` 
+                            var sql = `UPDATE CONTAS SET SALDO = ?, DATA_ALTERACAO = NOW() WHERE CONTAS.MOEDA = 'USD' AND CONTAS.ID_CLIENTE = ?` 
                             connection.query(sql, [newSaldo, id], function (error, results, fields) {
                                 if (error) {
                                     console.log(`Error code: ${error.code} -Error nbr: ${error.errno} - Error message: ${error.sqlMessage}`)
