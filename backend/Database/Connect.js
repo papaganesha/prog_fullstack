@@ -1,4 +1,4 @@
-var mysql      = require('mysql');
+const mysql = require('mysql');
 
 Connection = {}
 Connection.connection = mysql.createConnection({
@@ -7,6 +7,7 @@ Connection.connection = mysql.createConnection({
   password : '',
   database : 'bancodigital'
 });
+
 
 
  Connection.connection.connect()

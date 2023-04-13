@@ -3,7 +3,9 @@
 //Cadastrar, criar novo Cliente.✔️
 //Variaveis do Cliente: id, cpf, nome, telefone, ativo(excluido ou nao).✔️
 //Dados de clientes mocados.✔️
+const { v4: uuidv4 } = require('uuid');
 var { connection } = require('../Database/Connect')
+
 
 var Controller = {}
 
@@ -88,28 +90,32 @@ Controller.addClient = async (req, res) => {
     if (cpf, nome, telefone) {
         //Checar se cliente existe de acordo com o CPF
         //PROCEDURE AQUI
-        connection.query(`SELECT * FROM CLIENTES WHERE CPF = ?`, cpf, function (error, results, fields) {
+        connection.query(`SELECT 1 FROM CLIENTES A WHERE A.CPF = ?`, cpf, function (error, results, fields) {
             if (error) {
                 console.log(`Error code: ${error.code} -Error nbr: ${error.errno} - Error message: ${error.sqlMessage}`)
                 //res.status(500).json({"msg": "Erro durante busca de cliente por ID"})
             }
-            if (results[0].cpf == cpf) {
+            console.log()
+            if (results.length > 0 && results[0]["1"] == 1) {
                 console.log("USUARIO EXISTE")
                 checkIfExists = true
             }
+            //Caso usuario existir
+            if (checkIfExists) {
+                res.status(400).json({ msg: `Cliente com este cpf ja foi cadastrado` })
+            }
+            //Caso usuario não existir
+            else {
+                var newId = uuidv4()
+                var sql = "INSERT INTO CLIENTES (ID_CLIENTE, CPF, NOME, TELEFONE) VALUES (?, ?, ?, ?)";
+                connection.query(sql, [newId, cpf, nome, telefone], function (err, result) {
+                    if (err) throw err;
+                    else {
+                        res.status(400).json({ msg: `Cliente ${nome} cadastrado com sucesso` })
+                    }
+                });
+            }
         })
-
-        //Caso usuario existir
-        if (checkIfExists) {
-            res.status(400).json({ msg: `Cliente com este cpf ja foi cadastrado` })
-        }
-        //Caso usuario não existir
-        else {
-            console.log("Usuario nao existe, inserir")
-            res.status(400).json({ msg: `Usuario nao existe, inserir` })
-
-        }
-
     }
     //Caso faltem parametros de cadastro
     else {
@@ -222,32 +228,40 @@ Controller.activateClient = async (req, res) => {
 Controller.checkBalance = async (req, res) => {
     var { id } = req.params
     var checkIfExists = false
-    var checkIfHasBalance = false
-    var clientAccount
-    for (var client of clients) {
-        if (id == client.id) {
+    var balances = []
+    connection.query(`SELECT 1 FROM CLIENTES A WHERE A.ID_CLIENTE = ?`, id, function (error, results, fields) {
+        if (error) {
+            console.log(`Error code: ${error.code} -Error nbr: ${error.errno} - Error message: ${error.sqlMessage}`)
+            //res.status(500).json({"msg": "Erro durante busca de cliente por ID"})
+        }
+        console.log()
+        if (results.length > 0 && results[0]["1"] == 1) {
+            console.log("USUARIO EXISTE")
             checkIfExists = true
         }
-    }
-
-    if (!checkIfExists) {
-        res.status(400).json({ msg: `Cliente inexistente` })
-
-    } else {
-        for (var account of accounts) {
-            if (account.id == id) {
-                if (account.balances.length > 0) {
-                    checkIfHasBalance = true
-                    clientAccount = account
+        //Caso usuario existir
+        if (checkIfExists) {
+            var sql = "SELECT * FROM CONTAS WHERE ID_CLIENTE = ?";
+            connection.query(sql, [id], function (err, result) {
+                if (err) throw err;
+                else {
+                    for (let account of result) {
+                        console.log("=> ", account)
+                        balances.push({
+                            moeda: account.moeda,
+                            saldo: account.saldo
+                        })
+                    }
+                    res.status(400).json({ balances })
                 }
-            }
+            });
         }
-        if (checkIfHasBalance) {
-            res.status(200).json({ saldo: clientAccount.balances })
-        } else {
-            res.status(400).json({ msg: `Cliente não possui saldo` })
+        //Caso usuario não existir
+        else {
+            res.status(400).json({ msg: `Cliente inexistente` })
         }
-    }
+    })
+
 }
 
 //Adicionar saldo para cliente por ID
@@ -259,74 +273,87 @@ Controller.addBalance = async (req, res) => {
     var { id } = req.params
     var { saldo, moeda } = req.body
     var checkIfExists = false
-    var checkIfHasBalance = false
+    var checkIfHasBalance
     var clientAccount
 
     //Achando cliente no Array
-    for (var client of clients) {
-        if (id == client.id) {
-            //Caso cliente exista
+    connection.query(`SELECT 1 FROM CLIENTES A WHERE A.ID_CLIENTE = ?`, id, function (error, results, fields) {
+        if (error) {
+            console.log(`Error code: ${error.code} -Error nbr: ${error.errno} - Error message: ${error.sqlMessage}`)
+            //res.status(500).json({"msg": "Erro durante busca de cliente por ID"})
+        }
+        if (results.length > 0 && results[0]["1"] == 1) {
+            console.log("USUARIO EXISTE")
             checkIfExists = true
         }
-    }
+        //Checando se cliente existe
+        if (!checkIfExists) {
+            //Caso cliente nao exista
+            res.status(400).json({ msg: `Cliente inexistente` })
 
-    //Checando se cliente existe
-    if (!checkIfExists) {
-        //Caso cliente nao exista
-        res.status(400).json({ msg: `Cliente inexistente` })
-
-        //Caso cliente exista
-    } else {
-        //Checar se cliente tem saldo na moeda escolhida
-        for (var account of accounts) {
-            if (account.id == id) {
-                clientAccount = account
-            }
-        }
-        //Loop em balancos dentro da conta do cliente
-        for (var balance of clientAccount.balances) {
-            //Caso moeda do balanco seja a mesma de escolha do cliente e exista saldo
-            if (balance.moeda == moeda && balance.saldo) {
-                //Setar cliente como tendo saldo/balanco na moeda escolhida
-                checkIfHasBalance = true
-            }
-        }
-
-        //Caso cliente possua saldo na moeda
-        if (checkIfHasBalance) {
-            //Loop de balancos do conta do cliente
-            for (var balance of clientAccount.balances) {
-                //Caso moeda atual do balanco seja a mesma escolhida para deposito
-                if (balance.moeda == moeda) {
-                    //Adicionando valor ao saldo/balanco
-                    balance.saldo += saldo
+            //Caso cliente exista
+        } else {
+            connection.query(`SELECT * FROM CONTAS A WHERE A.ID_CLIENTE = ?`, id, function (error, results, fields) {
+                if (error) {
+                    console.log(`Error code: ${error.code} -Error nbr: ${error.errno} - Error message: ${error.sqlMessage}`)
+                    //res.status(500).json({"msg": "Erro durante busca de cliente por ID"})
                 }
-            }
-            //Mostrar saldos/balancos apos inserção de saldo
-            res.status(200).json({ saldos: clientAccount.balances })
+                else {
+                    checkIfHasBalance = results
+                }
+                //Caso cliente possua saldo na moeda
+                console.log("AASSS", checkIfHasBalance)
+                if (checkIfHasBalance) {
+                    console.log("AAAA")
+                    //Loop de balancos do conta do cliente
+                    for (var balance of results) {
+                        //Caso moeda atual do balanco seja a mesma escolhida para deposito
+                        if (balance.moeda == moeda) {
+                            //Adicionando valor ao saldo/balanco
+                            console.log("AQUI ",balance.saldo)
+                            var newSaldo = balance.saldo + saldo
+                            var sql = `UPDATE CONTAS SET SALDO = ? WHERE CONTAS.MOEDA = 'USD' AND CONTAS.ID_CLIENTE = ?` 
+                            connection.query(sql, [newSaldo, id], function (error, results, fields) {
+                                if (error) {
+                                    console.log(`Error code: ${error.code} -Error nbr: ${error.errno} - Error message: ${error.sqlMessage}`)
+                                    res.status(500).json({ "msg": "Erro durante inserçao de saldo" })
+                                } else {
+                                    //Mostrar saldos/balancos apos inserção de saldo
+                                    res.status(200).json({ msg: "Saldo inserido" })
+                                }
+                            })
+                        }
+                    }
+
+
+                }
+                //Caso cliente não possua saldo na moeda
+                else {
+                    var sql = `INSERT INTO CONTAS(ID_CLIENTE, MOEDA, SALDO) VALUES(?,?,?)`
+                    connection.query(sql, [id, moeda, saldo], function (error, results, fields) {
+                        if (error) {
+                            console.log(`Error code: ${error.code} -Error nbr: ${error.errno} - Error message: ${error.sqlMessage}`)
+                            res.status(500).json({ "msg": "Erro durante inserção de saldo" })
+                        }
+                        else {
+                            if (results.affectedRows > 0) {
+                                console.log(results)
+                                res.status(201).json({ "msg": "Saldo adicionado com sucesso" })
+
+                            } else {
+                                res.status(201).json({ "msg": "Erro durante inserção de saldo" })
+
+                            }
+                        }
+                    })
+                }
+            })
+
 
         }
-        //Caso cliente não possua saldo na moeda
-        else {
-            //Criar novo objeto de saldo/balanco
-            try {
-                //Inserindo objeto de saldo/balanco nos balancos da conta do cliente
-                clientAccount.balances.push({
-                    moeda,
-                    saldo
-                })
+    })
 
-            }
-            //Caso ocorrer erro durante a inserção do novo objeto de saldo/balanco
-            catch (err) {
-                res.status(401).json({ msg: "Erro ao adicionar saldo" })
 
-            }
-
-            //Caso tentativa de Insercao do novo objeto de saldo/balanco tenha procedido sem erros
-            res.status(200).json({ saldos: clientAccount.balances })
-        }
-    }
 }
 
 //Retirar do saldo do Cliente por ID
