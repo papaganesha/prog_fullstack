@@ -302,15 +302,12 @@ Controller.addBalance = async (req, res) => {
                     checkIfHasBalance = results
                 }
                 //Caso cliente possua saldo na moeda
-                console.log("AASSS", checkIfHasBalance)
                 if (checkIfHasBalance) {
-                    console.log("AAAA")
                     //Loop de balancos do conta do cliente
                     for (var balance of results) {
                         //Caso moeda atual do balanco seja a mesma escolhida para deposito
                         if (balance.moeda == moeda) {
                             //Adicionando valor ao saldo/balanco
-                            console.log("AQUI ",balance.saldo)
                             var newSaldo = balance.saldo + saldo
                             var sql = `UPDATE CONTAS SET SALDO = ? WHERE CONTAS.MOEDA = 'USD' AND CONTAS.ID_CLIENTE = ?` 
                             connection.query(sql, [newSaldo, id], function (error, results, fields) {

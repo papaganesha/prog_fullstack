@@ -1,7 +1,7 @@
 {
     "client": "Thunder Client",
     "collectionName": "Routes",
-    "dateExported": "2023-04-06T00:40:39.909Z",
+    "dateExported": "2023-04-13T00:27:35.993Z",
     "version": "1.1",
     "folders": [],
     "requests": [
@@ -38,11 +38,11 @@
             "colId": "d4a54e85-1230-439b-b916-2da8efce968b",
             "containerId": "",
             "name": "Get Client by ID",
-            "url": "http://localhost:3000/api/clients/6",
+            "url": "http://localhost:3000/api/clients/97fa99fe-67c3-46d4-a859-8544dc11660f",
             "method": "GET",
             "sortNum": 17500,
             "created": "2023-04-05T22:16:08.353Z",
-            "modified": "2023-04-06T00:28:35.651Z",
+            "modified": "2023-04-13T00:07:10.965Z",
             "headers": [],
             "params": [],
             "tests": []
@@ -52,11 +52,11 @@
             "colId": "d4a54e85-1230-439b-b916-2da8efce968b",
             "containerId": "",
             "name": "Get Client balance by ID",
-            "url": "http://localhost:3000/api/balance/2",
+            "url": "http://localhost:3000/api/balance/97fa99fe-67c3-46d4-a859-8544dc11660f",
             "method": "GET",
             "sortNum": 18437.5,
             "created": "2023-04-05T22:16:08.354Z",
-            "modified": "2023-04-06T00:28:57.318Z",
+            "modified": "2023-04-13T00:05:07.614Z",
             "headers": [],
             "params": [],
             "tests": []
@@ -70,12 +70,12 @@
             "method": "POST",
             "sortNum": 20000,
             "created": "2023-04-05T22:16:08.355Z",
-            "modified": "2023-04-06T00:37:20.728Z",
+            "modified": "2023-04-12T23:04:31.285Z",
             "headers": [],
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n    \"cpf\": \"04533287654\",\n    \"nome\":\"Jorge Alves\",\n    \"telefone\": \"5199761275\"\n}",
+                "raw": "{\n    \"cpf\": \"04533287778\",\n    \"nome\":\"Marcos Alves\",\n    \"telefone\": \"5199761432\"\n}",
                 "form": []
             },
             "tests": []
@@ -85,16 +85,16 @@
             "colId": "d4a54e85-1230-439b-b916-2da8efce968b",
             "containerId": "",
             "name": "Add balance to Client account by ID",
-            "url": "http://localhost:3000/api/balance/1",
+            "url": "http://localhost:3000/api/balance/97fa99fe-67c3-46d4-a859-8544dc11660f",
             "method": "POST",
             "sortNum": 25000,
             "created": "2023-04-05T22:16:08.356Z",
-            "modified": "2023-04-05T22:16:08.356Z",
+            "modified": "2023-04-13T00:14:32.714Z",
             "headers": [],
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n  \"moeda\": \"usd\",\n  \"saldo\": 200\n}",
+                "raw": "{\n  \"moeda\": \"USD\",\n  \"saldo\": 200\n}",
                 "form": []
             },
             "tests": []
