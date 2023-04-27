@@ -15,7 +15,7 @@ const router = require('express').Router();
 const {
     addClient, 
     getClients,
-    getClientById,
+    getClientByIdController,
     updateClient,
     inactivateClient,
     activateClient,
@@ -31,7 +31,7 @@ router.get("/", (req, res)=>{
 
 router.get("/api/clients", getClients)
 
-router.get("/api/clients/:id", getClientById)
+router.get("/api/clients/:id", getClientByIdController)
 
 router.get("/api/balance/:id", checkBalance)
 

@@ -1,53 +1,72 @@
 const mysql = require('mysql');
+const util = require("util");
 
-Connection = {}
-Connection.connection = mysql.createConnection({
-  host     : 'localhost',
-  user     : 'root',
-  password : '',
-  database : 'bancodigital'
+Persistence = {}
+
+const connection = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: '',
+  database: 'bancodigital'
 });
 
+connection.query = util.promisify(connection.query).bind(connection);
 
 
- Connection.connection.connect()
+Persistence.getAllClients = async () => {
+  connection.connect()
+  var clients = []
+  try {
 
-// var cpf = "04533287654"
-// connection.query(`SELECT * FROM CLIENTES A WHERE A.CPF = ?`, cpf, function (error, results, fields) {
-//     if (error){
-//         //throw error
-//         console.log(`Error code: ${error.code} -Error nbr: ${error.errno} - Error message: ${error.sqlMessage}`)
-//     };
-//     console.log('The solution is: ', results[0]);
-//   });
+    let queryString = `SELECT * from CLIENTES`;
+    const results = await connection.query(queryString).catch(err => { throw err });
+    connection.end();
+    for (let client of results) {
+      var clientObj = {
+        id: client.id_cliente,
+        cpf: client.cpf,
+        nome: client.nome,
+        telefone: client.telefone,
+        status: client.status == 0 ? "inativo" : "ativo"
+      }
+      try {
+        clients.push(clientObj)
+      }
+      catch (err) {
+        throw err
+      }
+    }
+  }
+  catch (err) {
+    throw err
+  }
+  return clients
+}
 
-//ADICIONANDO NOVO CLIENTE
-
-// connection.query(`INSERT INTO clientes (cpf, nome, telefone) VALUES ('04533287654', 'Bruno Marques', '51998453221')`, function (error, results, fields) {
-//     //Caso de entrada duplicada, CPF ja existente
-//     if (error.code == "ER_DUP_ENTRY"){
-//         console.log(`Error code: ${error.code} -Error nbr: ${error.errno} - Error message: ${error.sqlMessage}`)
-//     };
-//     //Caso insercao ocorra
-//     console.log('The solution is: ', results[0]);
-//   });
-
-// Inserindo saldo na conta
-// var id_cliente = 6
-// var moeda = "BRL"
-// var saldo = 150.45
-//   connection.query(`INSERT INTO contas (id_cliente, moeda, saldo) VALUES (?, ?, ?)`,[id_cliente, moeda, saldo], function (error, results, fields) {
-//     //Caso de entrada duplicada, CPF ja existente
-//     if (error.code == 1062){
-//         console.log(`Moeda ja registrada para usuario`)
-//     };
-//     //Caso insercao ocorra
-//     if(results.affectedRows > 0){
-//         console.log('Conta de cliente criada com sucesso');
-//     }
+Persistence.getClientById = async (id) => {
+  connection.connect()
+  let clientObj
+  try {
+    let queryString = `SELECT * FROM CLIENTES WHERE ID_CLIENTE = ?`
+    const results = await connection.query(queryString, id).catch(err => { throw err });
+    console.log(results)
+    clientObj = {
+      id: results[0].id_cliente,
+      cpf: results[0].cpf,
+      nome: results[0].nome,
+      telefone: results[0].telefone,
+      status: results[0].status == 0 ? "inativo" : "ativo"
+    }
     
-//   });
-   
-  // connection.end();
+  }
 
-  module.exports = Connection
+  catch (err) {
+    throw err
+  }
+  connection.end()
+  return clientObj
+}
+
+
+
+module.exports = Persistence

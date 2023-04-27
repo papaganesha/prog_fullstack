@@ -1,7 +1,7 @@
 {
     "client": "Thunder Client",
     "collectionName": "Routes",
-    "dateExported": "2023-04-19T23:25:53.352Z",
+    "dateExported": "2023-04-27T00:28:19.707Z",
     "version": "1.1",
     "folders": [],
     "requests": [
@@ -52,11 +52,11 @@
             "colId": "d4a54e85-1230-439b-b916-2da8efce968b",
             "containerId": "",
             "name": "Get Client balance by ID",
-            "url": "http://localhost:3000/api/balance/7d966675-bbfa-4dee-9c47-9d213aeca7c0",
+            "url": "http://localhost:3000/api/balance/1aa4565b-8ebf-4369-b960-85ff531fea38",
             "method": "GET",
             "sortNum": 18437.5,
             "created": "2023-04-05T22:16:08.354Z",
-            "modified": "2023-04-19T23:22:35.172Z",
+            "modified": "2023-04-26T23:03:56.554Z",
             "headers": [],
             "params": [],
             "tests": []
@@ -70,12 +70,12 @@
             "method": "POST",
             "sortNum": 20000,
             "created": "2023-04-05T22:16:08.355Z",
-            "modified": "2023-04-19T23:13:36.573Z",
+            "modified": "2023-04-26T22:34:18.989Z",
             "headers": [],
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n    \"cpf\": \"03344518933\",\n    \"nome\":\"Joao Pedro\",\n    \"telefone\": \"51998196443\"\n}",
+                "raw": "{\n    \"cpf\": \"03344518533\",\n    \"nome\":\"Joao Paulo\",\n    \"telefone\": \"51998196443\"\n}",
                 "form": []
             },
             "tests": []
@@ -123,11 +123,11 @@
             "colId": "d4a54e85-1230-439b-b916-2da8efce968b",
             "containerId": "",
             "name": "Inactivate Client",
-            "url": "http://localhost:3000/api/inactivate/7d966675-bbfa-4dee-9c47-9d213aeca7c0",
+            "url": "http://localhost:3000/api/inactivate/17827517-e14a-4695-93f0-b0fc17954b07",
             "method": "PUT",
             "sortNum": 30000,
             "created": "2023-04-05T22:16:08.358Z",
-            "modified": "2023-04-19T22:53:23.237Z",
+            "modified": "2023-04-26T22:52:05.651Z",
             "headers": [],
             "params": [],
             "tests": []
@@ -137,11 +137,11 @@
             "colId": "d4a54e85-1230-439b-b916-2da8efce968b",
             "containerId": "",
             "name": "Activate Client",
-            "url": "http://localhost:3000/api/activate/7d966675-bbfa-4dee-9c47-9d213aeca7c0",
+            "url": "http://localhost:3000/api/activate/17827517-e14a-4695-93f0-b0fc17954b07",
             "method": "PUT",
             "sortNum": 35000,
             "created": "2023-04-05T22:16:08.359Z",
-            "modified": "2023-04-19T22:57:04.579Z",
+            "modified": "2023-04-26T22:53:16.336Z",
             "headers": [],
             "params": [],
             "tests": []
@@ -151,16 +151,16 @@
             "colId": "d4a54e85-1230-439b-b916-2da8efce968b",
             "containerId": "",
             "name": "Update Client",
-            "url": "http://localhost:3000/api/clients/17827517-e14a-4695-93f0-b0fc17954b07",
+            "url": "http://localhost:3000/api/clients/86271140-d721-40f3-b31d-3e63bb337da2",
             "method": "PUT",
             "sortNum": 40000,
             "created": "2023-04-05T22:16:08.360Z",
-            "modified": "2023-04-19T23:23:53.775Z",
+            "modified": "2023-04-26T22:43:36.321Z",
             "headers": [],
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n  \"nome\": \"Pablo Antunes\",\n  \"telefone\": \"51998195344\"\n}",
+                "raw": "{\n  \"nome\": \"Mario Sergio\",\n  \"telefone\": \"51998184297\"\n}",
                 "form": []
             },
             "tests": []

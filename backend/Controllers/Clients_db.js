@@ -1,121 +1,90 @@
 //Listar e buscar todos os clientes E cliente especifico por ID.✔️
 //Atualizar dados do Cliente(por ID).✔️
 //Cadastrar, criar novo Cliente.✔️
-//Variaveis do Cliente: id, cpf, nome, telefone, ativo(excluido ou nao).✔️
-//Dados de clientes mocados.✔️
-const { v4: uuidv4 } = require('uuid');
-var { connection } = require('../Database/Connect')
+//Ativar e inativar cliente.✔️
+//Variaveis do Cliente: id, cpf, nome, telefone, ativo(ativo=1, inativo=0).✔️
+//Dados de clientes inseridos no banco.✔️
 
+const { v4: uuidv4 } = require('uuid');
+const { getAllClients, getClientById } = require('../Bussiness/Clients')
 
 var Controller = {}
 
-var clients = require('../Mockup/Clients')
-var accounts = require('../Mockup/Accounts')
 
-
-//GET ALL THE CLIENTS
+//Get all the clients(Busca todos os cliente)
 Controller.getClients = async (req, res) => {
     var clients = []
-    connection.query(`SELECT * FROM CLIENTES`, function (error, results, fields) {
-        if (error) {
-            //throw error
-            console.log(`Error code: ${error.code} -Error nbr: ${error.errno} - Error message: ${error.sqlMessage}`)
-        };
-        // results.map((client)=>{
-
-        // })
-        for (let client of results) {
-            var clientObj = {
-                id: client.id_cliente,
-                cpf: client.cpf,
-                nome: client.nome,
-                telefone: client.telefone,
-                status: client.status
-            }
-            try {
-                clients.push(clientObj)
-            }
-            catch (error) {
-                console.log(error)
-            }
-            console.log(clientObj)
+    //getAllClients from Bussiness
+    const results = await getAllClients()
+    for (let client of results) {
+        var clientObj = {
+            id: client.id_cliente,
+            cpf: client.cpf,
+            nome: client.nome,
+            telefone: client.telefone,
+            status: client.status == 0 ? "inativo" : "ativo"
         }
-        res.status(200).json({ clientes: clients })
-    });
+        try {
+            clients.push(clientObj)
+        }
+        catch (err) {
+            throw err
+        }
+    }
+    res.status(200).json({ clientes: clients })
+
 
 }
 
-//GET CLIENT BY ID
-Controller.getClientById = async (req, res) => {
+//Get client by ID(Busca cliente por ID)
+Controller.getClientByIdController = async (req, res) => {
     var { id } = req.params
-    //Define variavel para instanciar cliente
 
-    connection.query(`SELECT * FROM CLIENTES WHERE ID_CLIENTE = ?`, id, function (error, results, fields) {
-        if (error) {
-            console.log(`Error code: ${error.code} -Error nbr: ${error.errno} - Error message: ${error.sqlMessage}`)
-            res.status(500).json({ "msg": "Erro durante busca de cliente por ID" })
-        };
-        //Verifica se resultado nao esta nulo
-        if (results[0]) {
-            //Criar objeto cliente
-            var client = {
-                id: results[0].id_cliente,
-                cpf: results[0].cpf,
-                nome: results[0].nome,
-                telefone: results[0].telefone
-            }
-        }
-        //Se existir cliente, retorna-lo 
-        if (client) {
-            res.status(200).json({ client })
-        }
-        //Caso não exista cliente, retornar mensagem
-        else {
-            res.status(400).json({ msg: "Cliente não cadastrado" })
-        }
-    });
+    let client = await getClientById(id)
+
+    if (client) {
+        res.status(200).json({ client })
+    }
+    //Caso não exista cliente, retornar mensagem
+    else {
+        res.status(400).json({ msg: "Cliente não cadastrado" })
+    }
 
 }
 
 
-//Criar novo cliente
-//Checar se cliente não existe
-//Verificar informacoes
-//Adicionar cliente
+//Create new client(Criar novo cliente)
+//Check if client doenst exists(Checar se cliente não existe)
+//Check info(Verificar informacoes)
+//Insert new client(Adicionar cliente)
 Controller.addClient = async (req, res) => {
     const { cpf, nome, telefone } = req.body
-    //Variavel para checar existencia do cliente
-    var checkIfExists = false
     //Checa se todos os parametros de cadastro estão presentes
     if (cpf, nome, telefone) {
         //Checar se cliente existe de acordo com o CPF
-        //PROCEDURE AQUI
-        connection.query(`SELECT 1 FROM CLIENTES A WHERE A.CPF = ?`, cpf, function (error, results, fields) {
-            if (error) {
-                console.log(`Error code: ${error.code} -Error nbr: ${error.errno} - Error message: ${error.sqlMessage}`)
-                //res.status(500).json({"msg": "Erro durante busca de cliente por ID"})
+        //Criando string query
+        let queryString = `SELECT 1 FROM CLIENTES A WHERE A.CPF = ?`
+        //Executando query passando QueryString e parametros
+        const checkIfClientExists = await connection.query(queryString, cpf).catch(err => { throw err })
+        //Checar se usuario existe se resultado for 1
+        if (checkIfClientExists["1"] == 1) {
+            //Caso usuario exista   
+            res.status(400).json({ msg: `Cliente com este cpf ja foi cadastrado` })
+        }
+        //Caso usuario não existir
+        else {
+            //Criar novo usuario/cliente
+            //Criando novo ID
+            var newId = uuidv4()
+            //Criando Query String
+            let queryString = "INSERT INTO CLIENTES (ID_CLIENTE, CPF, NOME, TELEFONE) VALUES (?, ?, ?, ?)";
+            //Executando query passando QueryString e parametros 
+            const insertClient = await connection.query(queryString, [newId, cpf, nome, telefone]).catch(err => { throw err })
+            //Checa se cliente foi inserido
+            if (insertClient.affectedRows > 0) {
+                res.status(400).json({ msg: `Cliente ${nome} cadastrado com sucesso` })
             }
-            console.log()
-            if (results.length > 0 && results[0]["1"] == 1) {
-                console.log("USUARIO EXISTE")
-                checkIfExists = true
-            }
-            //Caso usuario existir
-            if (checkIfExists) {
-                res.status(400).json({ msg: `Cliente com este cpf ja foi cadastrado` })
-            }
-            //Caso usuario não existir
-            else {
-                var newId = uuidv4()
-                var sql = "INSERT INTO CLIENTES (ID_CLIENTE, CPF, NOME, TELEFONE) VALUES (?, ?, ?, ?)";
-                connection.query(sql, [newId, cpf, nome, telefone], function (err, result) {
-                    if (err) throw err;
-                    else {
-                        res.status(400).json({ msg: `Cliente ${nome} cadastrado com sucesso` })
-                    }
-                });
-            }
-        })
+        }
     }
     //Caso faltem parametros de cadastro
     else {
@@ -123,151 +92,155 @@ Controller.addClient = async (req, res) => {
     }
 }
 
-//UPDATE CLIENT INFO
-//Atualizar informações de cliente
-//Checar se cliente existe
-//Verificar quais informações/parametros foram passadas
-//Alterar informações de acordo com os parametros do requerimento
+
+//Update client info(Atualizar informações de cliente)
+//Check if client doenst exists(Checar se cliente não existe)
+//Check passed info/parameters (Verificar quais informações/parametros foram passadas)
+//Update info by required parameters(Alterar informações de acordo com os parametros do requerimento)
 Controller.updateClient = async (req, res) => {
     var { id } = req.params
     var { cpf, nome, telefone } = req.body
+    //Checar parametros
     if (cpf || nome || telefone) {
         //CHECANDO SE CLIENTE EXISTE
-        var sql = `SELECT * FROM CLIENTES WHERE ID_CLIENTE = ?`
-        connection.query(sql, [id], function (error, results, fields) {
-            if (error) {
-                res.status(500).json({ "msg": "Erro durante busca de cliente" })
-            }
-            if (results.length == 0) {
-                res.status(400).json({ msg: `Cliente inexistente` })
-    
-            } else {
-                try {
-                    if (cpf) {
-                        var sql = `UPDATE CLIENTES SET CPF = ? WHERE ID_CLIENTE = ?`
-                        connection.query(sql, [cpf, id], function (error, results, fields) {
-                            if (error) {
-                                res.status(500).json({ "msg": "Erro durante inativação de cliente" })
-                            }        
-                        })
-                    }
-                    if (nome) {
-                        var sql = `UPDATE CLIENTES SET NOME = ? WHERE ID_CLIENTE = ?`
-                        connection.query(sql, [nome, id], function (error, results, fields) {
-                            if (error) {
-                                res.status(500).json({ "msg": "Erro durante inativação de cliente" })
-                            }
-                        })
-                    }
-                    if (telefone) {
-                        var sql = `UPDATE CLIENTES SET TELEFONE = ? WHERE ID_CLIENTE = ?`
-                        connection.query(sql, [telefone, id], function (error, results, fields) {
-                            if (error) {
-                                res.status(500).json({ "msg": "Erro durante alteracao de cliente" })
-                            }        
-                        })
-                    }
-                } catch (error) {
-                    res.status(400).json({ msg: `Erro alterar cliente : ${error.message}` })
-    
+        //Criando Query String
+        var queryString = `SELECT 1 FROM CLIENTES WHERE ID_CLIENTE = ?`
+        //Executando query passando QueryString e parametros 
+        const checkIfClientExists = await connection.query(queryString, id).catch(err => { throw err })
+        //CheckIfClientExists sendo 1 cliente existe
+        //Caso cliente nao exista
+        if (checkIfClientExists[0]["1"] !== 1) {
+            res.status(400).json({ msg: `Cliente inexistente` })
+        }
+        //Caso cliente exista
+        else {
+            //Tentar executar
+            try {
+                //Se usuario quiser alterar o CPF
+                if (cpf) {
+                    //Criando Query String
+                    var queryString = `UPDATE CLIENTES SET CPF = ? WHERE ID_CLIENTE = ?`
+                    //Executando query passando QueryString e parametros 
+                    await connection.query(queryString, [cpf, id]).catch(err => { throw err })
                 }
-                res.status(201).json({ msg: `Cliente alterado com sucesso` })
-    
+                //Se usuario quiser alterar o Nome
+                if (nome) {
+                    //Criando Query String
+                    var queryString = `UPDATE CLIENTES SET NOME = ? WHERE ID_CLIENTE = ?`
+                    //Executando query passando QueryString e parametros 
+                    await connection.query(queryString, [nome, id]).catch(err => { throw err })
+                }
+                if (telefone) {
+                    //Criando Query String
+                    var queryString = `UPDATE CLIENTES SET TELEFONE = ? WHERE ID_CLIENTE = ?`
+                    //Executando query passando QueryString e parametros 
+                    await connection.query(queryString, [telefone, id]).catch(err => { throw err })
+                }
             }
-        })
+            //Caso ocorra erro na tentativa de alteração do cliente
+            catch (error) {
+                res.status(400).json({ msg: `Erro ao alterar cliente : ${error.message}` })
 
+            }
+            res.status(201).json({ msg: `Cliente alterado com sucesso` })
 
-    } else {
+        }
+
+    }
+    //Caso nao exista nenhum parametro de atualizacao inserido
+    else {
         res.status(400).json({ msg: `No minimo uma informação deve ser escolhida para alteramento` })
 
     }
 }
 
 
-//INACTIVATE CLIENT
+//Inactivate client(Inativar cliente)
+//Check if client doenst exists(Checar se cliente não existe)
+//Check state of status(Checa o estado do status)
+//Update status info from 1 to 0 - active to inactive(Altera o status de 1 para 0)
 Controller.inactivateClient = async (req, res) => {
     var { id } = req.params
-    var sql = `SELECT * FROM CLIENTES WHERE ID_CLIENTE = ?`
-    connection.query(sql, [id], function (error, results, fields) {
-        if (error) {
-            res.status(500).json({ "msg": "Erro durante inserçao de saldo" })
-        }
-        console.log(results[0].status)
-        if(results[0].status == 1){
-            var sql = `UPDATE CLIENTES SET STATUS = 0 WHERE ID_CLIENTE = ?`
-            connection.query(sql, [id], function (error, results, fields) {
-                if (error) {
-                    res.status(500).json({ "msg": "Erro durante inativação de cliente" })
-                }
+    var queryString = `SELECT * FROM CLIENTES WHERE ID_CLIENTE = ?`
+    const client = await connection.query(queryString, id).catch(err => { throw err })
+    if (client.length > 0) {
+        if (client[0].status == 1) {
+            var queryString = `UPDATE CLIENTES SET STATUS = 0 WHERE ID_CLIENTE = ?`
+            const result = await connection.query(queryString, id).catch(err => { throw err })
+            if (result.affectedRows > 0) {
                 res.status(201).json({ msg: `Cliente inativado com sucesso` })
+            }
 
-            })
-        }else{
+
+
+        } else {
             res.status(400).json({ msg: `Cliente ja esta inativado` })
         }
+    }
+    else {
+        res.status(400).json({ msg: `Cliente não existe` })
+    }
 
-    })
+
 }
 
-//ACTIVATE CLIENT
+//Inactivate client(Inativar cliente)
+//Check if client doenst exists(Checar se cliente não existe)
+//Check state of status(Checa o estado do status)
+//Update status info from 0 to 1 - inactive to active(Altera o status de 1 para 0)
 Controller.activateClient = async (req, res) => {
     var { id } = req.params
-    var sql = `SELECT * FROM CLIENTES WHERE ID_CLIENTE = ?`
-    connection.query(sql, [id], function (error, results, fields) {
-        if (error) {
-            res.status(500).json({ "msg": "Erro durante inserçao de saldo" })
-        }
-        console.log(results[0].status)
-        if(results[0].status == 0){
-            var sql = `UPDATE CLIENTES SET STATUS = 1 WHERE ID_CLIENTE = ?`
-            connection.query(sql, [id], function (error, results, fields) {
-                if (error) {
-                    res.status(500).json({ "msg": "Erro durante inativação de cliente" })
-                }
+    var queryString = `SELECT * FROM CLIENTES WHERE ID_CLIENTE = ?`
+    const client = await connection.query(queryString, id).catch(err => { throw err })
+    if (client.length > 0) {
+        if (client[0].status == 0) {
+            var queryString = `UPDATE CLIENTES SET STATUS = 1 WHERE ID_CLIENTE = ?`
+            const result = await connection.query(queryString, id).catch(err => { throw err })
+            if (result.affectedRows > 0) {
                 res.status(201).json({ msg: `Cliente ativado com sucesso` })
+            }
 
-            })
-        }else{
+
+
+        } else {
             res.status(400).json({ msg: `Cliente ja esta ativado` })
         }
+    }
+    else {
+        res.status(400).json({ msg: `Cliente não existe` })
+    }
 
-    })
+
 }
 
 Controller.checkBalance = async (req, res) => {
     var { id } = req.params
-    var checkIfExists = false
     var balances = []
-    connection.query(`SELECT 1 FROM CLIENTES A WHERE A.ID_CLIENTE = ?`, id, function (error, results, fields) {
-        if (error) {
-            res.status(500).json({ "msg": `Erro durante busca de cliente por ID - {${error.sqlMessage}}` })
-        }
-        console.log()
-        if (results.length > 0 && results[0]["1"] == 1) {
-            checkIfExists = true
-        }
-        //Caso usuario existir
-        if (checkIfExists) {
-            var sql = "SELECT * FROM CONTAS WHERE ID_CLIENTE = ?";
-            connection.query(sql, [id], function (err, result) {
-                if (err) throw err;
-                else {
-                    for (let account of result) {
-                        console.log("=> ", account)
-                        balances.push({
-                            moeda: account.moeda,
-                            saldo: account.saldo
-                        })
-                    }
-                    res.status(400).json({ balances })
-                }
-            });
-        }
-        //Caso usuario não existir
-        else {
-            res.status(400).json({ msg: `Cliente inexistente` })
-        }
-    })
+    // var queryString = `SELECT 1 FROM CLIENTES WHERE ID_CLIENTE = ?`
+    // const checkIfClientExists = await connection.query(queryString, id).catch(err => { throw err })
+    // console.log(checkIfClientExists)
+    // if (checkIfClientExists[0]["1"] == 1) {
+    var queryString = `SELECT * FROM CONTAS A WHERE A.ID_CLIENTE = ?`
+    await connection.query(queryString, id)
+        .then(accounts => {
+            console.log(accounts)
+        })
+        .catch(err => { throw err })
+
+    // for (let account of accounts) {
+    //     console.log("=> ", account)
+    //     balances.push({
+    //         moeda: account.moeda,
+    //         saldo: account.saldo
+    //     })
+    // }
+    res.status(400).json({ balances })
+    // }
+    //Caso usuario não existir
+    // else {
+    //     res.status(400).json({ msg: `Cliente inexistente` })
+    // }
+
 
 }
 
