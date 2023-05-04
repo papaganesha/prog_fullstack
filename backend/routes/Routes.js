@@ -13,12 +13,13 @@ const router = require('express').Router();
 // } = require('../Controllers/Clients')
 
 const {
-    addClient, 
+    addClientController, 
     getClients,
     getClientByIdController,
     updateClient,
     inactivateClient,
     activateClient,
+    blockClient,
     checkBalance,
     addBalance,
     withdrawBalance
@@ -35,7 +36,7 @@ router.get("/api/clients/:id", getClientByIdController)
 
 router.get("/api/balance/:id", checkBalance)
 
-router.post("/api/clients", addClient)
+router.post("/api/clients", addClientController)
 
 router.post("/api/balance/:id", addBalance)
 
@@ -46,6 +47,9 @@ router.put("/api/clients/:id", updateClient)
 router.put("/api/activate/:id", activateClient)
 
 router.put("/api/inactivate/:id", inactivateClient)
+
+router.put("/api/block/:id", blockClient)
+
 
 
 module.exports = router

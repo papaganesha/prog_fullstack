@@ -1,12 +1,12 @@
 var Persistence       = require('../Database/Connect')
-var { getAllClients, getClientById } = Persistence
+var { getClientsPersistence, getClientByIdPersistence, addClientPersistence } = Persistence
 
 const Bussiness = {}
 
-Bussiness.getAllClients = async () => {
+Bussiness.getAllClientsBussiness = async () => {
     let clients = []
     try {
-        clients = await getAllClients()
+        clients = await getClientsPersistence()
     }
     catch (err) {
         throw err
@@ -14,10 +14,22 @@ Bussiness.getAllClients = async () => {
     return clients
 }
 
-Bussiness.getClientById = async (id) => {
+Bussiness.getClientByIdBussiness = async (id) => {
     let client
     try {
         client = await getClientById(id)
+    }
+    catch (err) {
+        throw err
+    }
+    console.log(client)
+    return client
+}
+
+Bussiness.addClientBussiness = async (cpf, nome, telefone) => {
+    let client
+    try {
+        client = await addClientPersistence(cpf, nome, telefone)
     }
     catch (err) {
         throw err
